@@ -141,6 +141,29 @@ Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os to
 - Faixas: 80+ Saudável · 60–79 Estável · 40–59 Atenção · abaixo de 40 Crítica.
 - Cada indicador fora do ideal traz uma dica de como melhorar.
 
+## Terceiros (compras de outras pessoas no nosso cartão)
+
+- Cadastro da pessoa com nome, WhatsApp e escopo: o casal acompanha junto ou só quem cadastrou.
+- A compra é uma despesa comum com o campo "Compra de terceiro". Pode ser parcelada.
+- A compra **entra na fatura** e em "contas a pagar", porque o banco cobra de vocês.
+- A compra **não é gasto da família**. Fica fora de:
+  - "Disponível para gastar";
+  - despesas por categoria e gráficos;
+  - saúde financeira;
+  - comparativos;
+  - totais da tela de lançamentos.
+- O vencimento de cada parcela é o da fatura em que ela cai (ou a data da compra, se não for no cartão). Passou dessa data sem pagamento, a parcela está **vencida**.
+- **Recebi:** marca as parcelas pagas. A sugestão inicial são as vencidas ou, se nada venceu, a próxima.
+  - Cria uma receita "Reembolso — Nome" na conta escolhida, que atualiza o saldo.
+  - O reembolso **não é renda**: não gera dízimo/oferta, não entra no fundo do casal nem nas estatísticas.
+  - Desfazer = excluir o reembolso. As parcelas voltam a ficar pendentes.
+- **Aviso de quem deve:** botão "Cobrar no WhatsApp" com a mensagem pronta.
+  - A mensagem lista as parcelas vencidas e as que vencem em até 30 dias, com o total.
+  - Também dá para copiar a mensagem.
+  - O painel inicial mostra quanto falta receber e quem está com valor vencido.
+  - Ainda não há envio automático (push ou WhatsApp sem abrir o app); isso depende de um servidor de notificações.
+- Pessoa com compras registradas não pode ser excluída, só arquivada, para manter o histórico.
+
 ## Comparativos de despesas
 
 - Tela **Comparativos**, com duas visões:
@@ -172,7 +195,7 @@ Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os to
 
 ## Roadmap
 
-- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes, dashboard, cofrinhos, saúde financeira e comparativos ✅
-- **Fase 2:** lista de compras (offline e sincronizada), terceiros, rendas extras, orçamento por categoria, importação OFX, sonhos.
+- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes, dashboard, cofrinhos, saúde financeira, comparativos e terceiros ✅
+- **Fase 2:** lista de compras (offline e sincronizada), rendas extras, orçamento por categoria, importação OFX, sonhos.
 - **Fase 3:** investimentos, projetos e empréstimos (amortização), datas comemorativas, patrimônio, relatórios e exclusão de conta com relatório.
 - **Fase 4:** integrações (Open Finance, nota fiscal, B3).

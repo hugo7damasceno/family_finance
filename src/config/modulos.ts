@@ -80,7 +80,7 @@ export const modulos: Modulo[] = [
     titulo: 'Terceiros',
     descricao: 'Pessoas que compraram no seu cartão e precisam reembolsar',
     icone: Users,
-    fase: 2,
+    fase: 1,
   },
   { rota: '/sonhos', titulo: 'Sonhos', descricao: 'Metas e conquistas: viagem, carro, móveis', icone: Sparkles, fase: 2 },
   {

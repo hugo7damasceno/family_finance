@@ -18,6 +18,7 @@ export type Movimento = Pick<
   | 'descricao'
   | 'recorrencia_id'
   | 'parcelamento_id'
+  | 'terceiro_id'
 >
 
 /**
@@ -25,6 +26,12 @@ export type Movimento = Pick<
  * o resto, no mês da data.
  */
 export const competencia = (m: Pick<Movimento, 'fatura_mes' | 'data'>) => (m.fatura_mes ?? m.data).slice(0, 7)
+
+/**
+ * Compras de terceiros e seus reembolsos não são gasto nem renda da família:
+ * ficam fora das estatísticas (mas a compra continua na fatura e em "contas a pagar").
+ */
+export const daFamilia = (m: Pick<Movimento, 'terceiro_id'>) => !m.terceiro_id
 
 /** Receitas e despesas visíveis entre dois meses (inclusive), por competência. */
 export function useMovimentos(mesInicio: string, mesFim: string) {
@@ -35,7 +42,7 @@ export function useMovimentos(mesInicio: string, mesFim: string) {
       const fim = limitesDoMes(mesFim).fim
       const { data, error } = await supabase
         .from('lancamentos')
-        .select('id, tipo, valor_cents, data, fatura_mes, cartao_id, categoria_id, escopo, owner_id, pago, descricao, recorrencia_id, parcelamento_id')
+        .select('id, tipo, valor_cents, data, fatura_mes, cartao_id, categoria_id, escopo, owner_id, pago, descricao, recorrencia_id, parcelamento_id, terceiro_id')
         .neq('tipo', 'transferencia')
         .or(`and(cartao_id.is.null,data.gte.${ini},data.lte.${fim}),and(fatura_mes.gte.${ini},fatura_mes.lte.${fim})`)
       if (error) throw error

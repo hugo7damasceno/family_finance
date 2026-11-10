@@ -54,10 +54,24 @@ export interface Lancamento {
   parcelamento_id: string | null
   parcela_numero: number | null
   terceiro_id: string | null
+  /** Despesa de terceiro: receita de reembolso que a quitou (null = ainda devendo). */
+  reembolso_id: string | null
   pago: boolean
   gerado_de_id: string | null
   recorrencia_id: string | null
   observacao: string | null
+  created_at: string
+}
+
+export interface Terceiro {
+  id: string
+  owner_id: string
+  household_id: string | null
+  escopo: Escopo
+  nome: string
+  telefone: string | null
+  observacao: string | null
+  arquivado: boolean
   created_at: string
 }
 

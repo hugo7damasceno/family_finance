@@ -4,7 +4,7 @@ import { useAuth } from '@/auth/auth-context'
 import { Cabecalho } from '@/components/layout/AuthLayout'
 import { Aviso, Card } from '@/components/ui/Card'
 import { Carregando } from '@/components/ui/Carregando'
-import { useMovimentos, type Movimento } from '@/features/dashboard/api'
+import { daFamilia, useMovimentos, type Movimento } from '@/features/dashboard/api'
 import { useCategorias } from '@/features/lancamentos/api'
 import { cn } from '@/lib/cn'
 import { adicionarMeses, mesAtualISO, nomeDoMes } from '@/lib/datas'
@@ -54,6 +54,7 @@ export function PaginaComparativos() {
 
   const filtrados = (movimentos.data ?? []).filter(
     (m: Movimento) =>
+      daFamilia(m) &&
       (filtro === 'todos' || (filtro === 'meus' ? m.escopo === 'individual' : m.escopo === 'casal')) &&
       (comContribuicoes || !m.categoria_id || !contribuicoes.has(m.categoria_id)),
   )
@@ -126,7 +127,7 @@ export function PaginaComparativos() {
       )}
 
       <p className="mb-6 text-xs text-slate-500">
-        Compras no cartão contam no mês da fatura. Transferências entre contas não entram.
+        Compras no cartão contam no mês da fatura. Transferências e compras de terceiros não entram.
         {household && ' Considera os lançamentos que você vê: os seus e os da casa.'}
       </p>
     </>

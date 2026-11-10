@@ -34,6 +34,7 @@ export interface DadosParcelamento {
   cartao_id: string | null
   conta_id: string | null
   pagas: number
+  terceiro_id?: string | null
 }
 
 export function useCriarParcelamento() {
@@ -50,6 +51,7 @@ export function useCriarParcelamento() {
         p_cartao: d.cartao_id,
         p_conta: d.conta_id,
         p_pagas: d.pagas,
+        p_terceiro: d.terceiro_id ?? null,
       })
       if (error) throw error
     },

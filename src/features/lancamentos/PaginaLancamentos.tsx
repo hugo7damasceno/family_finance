@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, CreditCard, Home, Repeat, Landmark, Plus, Sparkles, User } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CreditCard, Home, Repeat, Landmark, Plus, Sparkles, User, Users } from 'lucide-react'
 import { useAuth } from '@/auth/auth-context'
 import { Cabecalho } from '@/components/layout/AuthLayout'
 import { BotaoEmDesenvolvimento } from '@/components/EmDesenvolvimento'
@@ -16,6 +16,7 @@ import type { Lancamento } from '@/types/database'
 import { useAlternarPago, useCategorias, useLancamentosDoMes, type DadosLancamento } from './api'
 import { FormLancamento } from './FormLancamento'
 import { PainelRecorrencias } from '@/features/recorrencias/PainelRecorrencias'
+import { useTerceiros } from '@/features/terceiros/api'
 
 type Filtro = 'todos' | 'meus' | 'casal'
 type EstadoModal = { lancamento?: Lancamento; inicial?: Partial<DadosLancamento> } | null
@@ -35,8 +36,10 @@ export function PaginaLancamentos() {
   const { data: lancamentos, isPending, error } = useLancamentosDoMes(mes)
   const { data: categorias = [] } = useCategorias()
   const alternarPago = useAlternarPago()
+  const { data: terceiros = [] } = useTerceiros()
 
   const nomeCategoria = useMemo(() => new Map(categorias.map((c) => [c.id, c.nome])), [categorias])
+  const nomeTerceiro = useMemo(() => new Map(terceiros.map((t) => [t.id, t.nome.split(' ')[0]])), [terceiros])
   const nomeMembro = useMemo(() => new Map(membros.map((m) => [m.id, m.nome.split(' ')[0]])), [membros])
 
   const visiveis = (lancamentos ?? []).filter((l) =>
@@ -44,6 +47,12 @@ export function PaginaLancamentos() {
   )
   const totais = visiveis.reduce(
     (t, l) => {
+      // Compras de terceiros e reembolsos não são renda nem gasto da família.
+      if (l.terceiro_id) {
+        if (l.tipo === 'despesa') t.terceiros += l.valor_cents
+        if (l.tipo === 'despesa' && !l.pago) t.aPagar += l.valor_cents
+        return t
+      }
       if (l.tipo === 'receita') t.receitas += l.valor_cents
       if (l.tipo === 'despesa') {
         // Transferências entre contas não são receita nem despesa.
@@ -52,7 +61,7 @@ export function PaginaLancamentos() {
       }
       return t
     },
-    { receitas: 0, despesas: 0, aPagar: 0 },
+    { receitas: 0, despesas: 0, aPagar: 0, terceiros: 0 },
   )
   const grupos = new Map<string, Lancamento[]>()
   for (const l of visiveis) grupos.set(l.data, [...(grupos.get(l.data) ?? []), l])
@@ -117,6 +126,12 @@ export function PaginaLancamentos() {
       {totais.aPagar > 0 && (
         <p className="mb-4 text-sm text-slate-600">
           Ainda a pagar este mês: <strong className="text-slate-900">{formatarBRL(totais.aPagar)}</strong>
+        </p>
+      )}
+      {totais.terceiros > 0 && (
+        <p className="-mt-2 mb-4 text-sm text-slate-600">
+          Compras de terceiros (fora das despesas):{' '}
+          <strong className="text-slate-900">{formatarBRL(totais.terceiros)}</strong>
         </p>
       )}
 
@@ -193,6 +208,13 @@ export function PaginaLancamentos() {
                           )}
                           {l.cartao_id && <CreditCard className="size-3" aria-label="Cartão de crédito" />}
                           {l.categoria_id && nomeCategoria.get(l.categoria_id)}
+                          {l.terceiro_id && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 text-slate-600">
+                              <Users className="size-3" aria-hidden />
+                              {l.tipo === 'receita' ? 'reembolso de ' : ''}
+                              {nomeTerceiro.get(l.terceiro_id) ?? 'terceiro'}
+                            </span>
+                          )}
                           {l.gerado_de_id && <Sparkles className="size-3 text-brand-600" aria-label="Automático" />}
                           {l.recorrencia_id && <Repeat className="size-3" aria-label="Recorrente" />}
                           {l.owner_id !== user?.id && <> · por {nomeMembro.get(l.owner_id) ?? 'cônjuge'}</>}

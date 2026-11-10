@@ -9,6 +9,7 @@ import { mesDaFatura, useCartoes } from '@/features/cartoes/api'
 import { useContasAtivas } from '@/features/contas/api'
 import { useCriarParcelamento } from '@/features/parcelamentos/api'
 import { criarRecorrenciaDoLancamento } from '@/features/recorrencias/api'
+import { useTerceiros } from '@/features/terceiros/api'
 import { cn } from '@/lib/cn'
 import { hojeISO, nomeDoMes } from '@/lib/datas'
 import { formatarBRL, percentual } from '@/lib/money'
@@ -42,6 +43,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
   const { data: categorias = [] } = useCategorias()
   const { data: contas = [] } = useContasAtivas()
   const { data: cartoes = [] } = useCartoes()
+  const { data: terceiros = [] } = useTerceiros()
   const salvar = useSalvarLancamento()
   const criarParcelamento = useCriarParcelamento()
   const excluir = useExcluirLancamento()
@@ -67,12 +69,16 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
     observacao: lancamento?.observacao ?? null,
     conta_id: lancamento?.conta_id ?? null,
     cartao_id: lancamento?.cartao_id ?? inicial?.cartao_id ?? null,
+    terceiro_id: lancamento?.terceiro_id ?? inicial?.terceiro_id ?? null,
   }))
   const set = <K extends keyof DadosLancamento>(k: K, v: DadosLancamento[K]) => setD((a) => ({ ...a, [k]: v }))
 
   const cartaoSelecionado = d.tipo === 'despesa' ? cartoes.find((c) => c.id === d.cartao_id) : undefined
   const ativos = cartoes.filter((c) => !c.arquivado || c.id === d.cartao_id)
   const parcelado = !lancamento && d.tipo === 'despesa' && numParcelas > 1
+  const reembolso = d.tipo === 'receita' && Boolean(d.terceiro_id)
+  const deTerceiro = d.tipo === 'despesa' && Boolean(d.terceiro_id)
+  const terceirosAtivos = terceiros.filter((t) => !t.arquivado || t.id === d.terceiro_id)
 
   const categoriasDoTipo = categorias.filter(
     (c) => c.tipo === d.tipo && !(d.tipo === 'despesa' && ['Dízimo', 'Oferta'].includes(c.nome) && !gerado),
@@ -99,13 +105,13 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
     setErro(null)
     if (!d.descricao.trim()) return setErro('Informe uma descrição.')
     if (d.valor_cents <= 0) return setErro('Informe um valor maior que zero.')
-    if (d.tipo === 'despesa' && !d.categoria_id) return setErro('Escolha uma categoria.')
+    if (d.tipo === 'despesa' && !d.categoria_id && !deTerceiro) return setErro('Escolha uma categoria.')
     if (parcelado && d.valor_cents < numParcelas) return setErro('Valor muito baixo para esse número de parcelas.')
     const dados: DadosLancamento = {
       ...d,
       descricao: d.descricao.trim(),
       observacao: d.observacao?.trim() || null,
-      categoria_id: d.tipo === 'receita' ? categoriaDaOrigem(d.origem_receita!) : d.categoria_id,
+      categoria_id: reembolso ? null : d.tipo === 'receita' ? categoriaDaOrigem(d.origem_receita!) : d.categoria_id,
       pago: cartaoSelecionado ? (lancamento?.pago ?? false) : d.pago,
     }
     try {
@@ -120,6 +126,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
           cartao_id: dados.cartao_id,
           conta_id: dados.conta_id,
           pagas: 0,
+          terceiro_id: dados.terceiro_id,
         })
       } else if (repetir && !lancamento) {
         setSalvandoRecorrencia(true)
@@ -207,6 +214,11 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
           Lançamento recorrente. As alterações valem só para este mês; para mudar os próximos, use “Recorrentes”.
         </Aviso>
       )}
+      {reembolso && (
+        <Aviso tipo="info">
+          Pagamento recebido de um terceiro (não conta como renda). Para desfazer, exclua-o ou use a tela de Terceiros.
+        </Aviso>
+      )}
       {parcela && (
         <Aviso tipo="info">
           Parcela de um parcelamento. As alterações valem só para esta parcela; para excluir todas, use a tela de
@@ -245,7 +257,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         ajuda={parcelado ? `${numParcelas}x de ${formatarBRL(Math.floor(d.valor_cents / numParcelas))}` : undefined}
       />
 
-      {d.tipo === 'receita' ? (
+      {reembolso ? null : d.tipo === 'receita' ? (
         <Select
           label="Origem"
           value={d.origem_receita ?? 'salario'}
@@ -259,7 +271,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         </Select>
       ) : (
         <Select
-          label="Categoria"
+          label={deTerceiro ? 'Categoria (opcional)' : 'Categoria'}
           value={d.categoria_id ?? ''}
           disabled={gerado}
           onChange={(e) => set('categoria_id', e.target.value || null)}
@@ -323,6 +335,27 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         )}
       </Select>
 
+      {d.tipo === 'despesa' && !gerado && (terceirosAtivos.length > 0 || deTerceiro) && (
+        <Select
+          label="Compra de terceiro?"
+          value={d.terceiro_id ?? ''}
+          disabled={parcela}
+          onChange={(e) => set('terceiro_id', e.target.value || null)}
+          ajuda={
+            deTerceiro
+              ? 'Entra na fatura, mas não conta como gasto de vocês. Acompanhe o reembolso em Terceiros.'
+              : undefined
+          }
+        >
+          <option value="">Não, é nossa</option>
+          {terceirosAtivos.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.nome}
+            </option>
+          ))}
+        </Select>
+      )}
+
       {!lancamento && d.tipo === 'despesa' && (
         <Select label="Parcelas" value={numParcelas} onChange={(e) => setNumParcelas(Number(e.target.value))}>
           {Array.from({ length: 48 }, (_, i) => i + 1).map((n) => (
@@ -345,7 +378,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         />
       )}
 
-      {d.tipo === 'receita' && (dizimoPrevisto > 0 || ofertaPrevista > 0) && (
+      {d.tipo === 'receita' && !reembolso && (dizimoPrevisto > 0 || ofertaPrevista > 0) && (
         <Aviso tipo="info">
           Serão separados automaticamente
           {dizimoPrevisto > 0 && (
@@ -365,7 +398,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         </Aviso>
       )}
 
-      {!lancamento && !parcelado && (
+      {!lancamento && !parcelado && !deTerceiro && (
         <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
           <input
             type="checkbox"

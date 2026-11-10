@@ -55,6 +55,8 @@ export interface DadosLancamento {
   observacao: string | null
   conta_id: string | null
   cartao_id: string | null
+  /** Compra feita por terceiro (despesa) ou reembolso recebido dele (receita). */
+  terceiro_id?: string | null
   /** Preenchido ao criar o lançamento junto com uma recorrência. */
   recorrencia_id?: string | null
 }

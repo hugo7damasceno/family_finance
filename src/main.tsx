@@ -5,6 +5,7 @@ import { AuthProvider } from '@/auth/AuthProvider'
 import { supabaseConfigurado } from '@/lib/supabase'
 import { App } from './App'
 import { ConfiguracaoPendente } from '@/pages/ConfiguracaoPendente'
+import { PrivacidadeProvider } from '@/components/PrivacidadeProvider'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -16,7 +17,9 @@ createRoot(document.getElementById('root')!).render(
     {supabaseConfigurado ? (
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+          <PrivacidadeProvider>
+            <App />
+          </PrivacidadeProvider>
         </AuthProvider>
       </QueryClientProvider>
     ) : (

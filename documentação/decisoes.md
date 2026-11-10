@@ -104,7 +104,17 @@ Visibilidade (aplicada no banco via Row Level Security, coluna `escopo`):
   2. Do fundo saem as despesas da casa e a reserva (percentual definido pelo casal em Configurações).
   3. A sobra é dividida **em partes iguais** (padrão) ou **proporcional à renda** (configurável).
   4. Da minha parte saem meu investimento e minhas despesas individuais.
-- O fundo comum mostra só o total; a renda de cada cônjuge não aparece separadamente.
+- **Privacidade:** o banco devolve só os números do próprio usuário e o total do fundo (função `resumo_fundo`); a renda
+  do cônjuge nunca é enviada ao app. O detalhamento mostra a *minha contribuição* e a *minha parte*.
+  Limite conhecido: como a sobra é dividida entre os dois, cada um consegue deduzir a renda do outro por conta.
+  Isso é inerente ao modelo de fundo comum e foi aceito.
+- Se ainda não há receita lançada, o painel mostra a renda do cadastro como **prevista** e oferece "Lançar salário do mês".
+- **Despesas fixas** = recorrentes + parcelas + categorias marcadas como fixas (moradia, contas, assinaturas). O resto é variável.
+
+## Ocultar valores
+
+- O ícone do olho (no topo de cada tela) troca todos os valores por "R$ •••••". A preferência fica salva no aparelho.
+- Campos de digitação continuam mostrando o valor real.
 - Cores dos gráficos: receitas sempre azul (`#2a78d6`), despesas sempre laranja (`#eb6834`). A paleta foi validada para daltonismo e contraste.
 
 ## Integrações futuras (botão desabilitado com selo "Em breve")

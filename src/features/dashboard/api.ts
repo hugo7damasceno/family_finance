@@ -16,6 +16,8 @@ export type Movimento = Pick<
   | 'owner_id'
   | 'pago'
   | 'descricao'
+  | 'recorrencia_id'
+  | 'parcelamento_id'
 >
 
 /**
@@ -33,7 +35,7 @@ export function useMovimentos(mesInicio: string, mesFim: string) {
       const fim = limitesDoMes(mesFim).fim
       const { data, error } = await supabase
         .from('lancamentos')
-        .select('id, tipo, valor_cents, data, fatura_mes, cartao_id, categoria_id, escopo, owner_id, pago, descricao')
+        .select('id, tipo, valor_cents, data, fatura_mes, cartao_id, categoria_id, escopo, owner_id, pago, descricao, recorrencia_id, parcelamento_id')
         .neq('tipo', 'transferencia')
         .or(`and(cartao_id.is.null,data.gte.${ini},data.lte.${fim}),and(fatura_mes.gte.${ini},fatura_mes.lte.${fim})`)
       if (error) throw error
@@ -42,22 +44,24 @@ export function useMovimentos(mesInicio: string, mesFim: string) {
   })
 }
 
-export interface ContribuicaoMembro {
-  membro_id: string
-  nome: string
+/** Meus números do mês + total do fundo do casal (sem a renda individual do cônjuge). */
+export interface ResumoFundo {
   receitas_cents: number
   contribuicoes_cents: number
-  /** true quando ainda não há receita lançada no mês e foi usada a renda do perfil. */
+  /** true quando ainda não há receita lançada no mês e foi usada a renda do cadastro. */
   estimado: boolean
+  fundo_cents: number
+  fundo_estimado: boolean
+  membros: number
 }
 
-export function useContribuicoes(mes: string) {
+export function useResumoFundo(mes: string) {
   return useQuery({
-    queryKey: ['lancamentos', 'contribuicoes', mes],
+    queryKey: ['lancamentos', 'resumo-fundo', mes],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('contribuicoes_fundo', { p_mes: `${mes}-01` })
+      const { data, error } = await supabase.rpc('resumo_fundo', { p_mes: `${mes}-01` }).maybeSingle<ResumoFundo>()
       if (error) throw error
-      return data as ContribuicaoMembro[]
+      return data
     },
   })
 }

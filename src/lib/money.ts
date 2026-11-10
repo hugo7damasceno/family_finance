@@ -3,7 +3,25 @@
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 
+// Preferência "ocultar valores" (ícone do olho). Controlada por PrivacidadeProvider.
+let ocultos = false
+export const MASCARA = 'R$ •••••'
+
+export function definirValoresOcultos(valor: boolean) {
+  ocultos = valor
+}
+
+export function valoresOcultos(): boolean {
+  return ocultos
+}
+
+/** Valor para exibição. Respeita a opção de ocultar valores. */
 export function formatarBRL(cents: number): string {
+  return ocultos ? MASCARA : brl.format(cents / 100)
+}
+
+/** Valor sempre visível (campos de digitação). */
+export function formatarBRLSempre(cents: number): string {
   return brl.format(cents / 100)
 }
 

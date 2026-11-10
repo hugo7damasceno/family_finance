@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { formatarBRL } from '@/lib/money'
+import { formatarBRL, valoresOcultos } from '@/lib/money'
 
 import { COR_DESPESAS, COR_RECEITAS } from './cores'
 
@@ -62,7 +62,7 @@ export default function GraficoEvolucao({ dados }: { dados: PontoEvolucao[] }) {
               tickLine={false}
               axisLine={false}
               tick={{ fill: '#64748b', fontSize: 11 }}
-              tickFormatter={(v: number) => compacto.format(v / 100)}
+              tickFormatter={(v: number) => (valoresOcultos() ? '•••' : compacto.format(v / 100))}
             />
             <Tooltip content={<Dica />} cursor={{ fill: '#f1f5f9' }} />
             <Bar dataKey="receitas" name="Receitas" fill={COR_RECEITAS} radius={[4, 4, 0, 0]} maxBarSize={28} />

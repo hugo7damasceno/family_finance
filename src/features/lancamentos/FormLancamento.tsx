@@ -59,7 +59,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
     tipo: lancamento?.tipo === 'receita' ? 'receita' : (inicial?.tipo ?? 'despesa'),
     origem_receita: lancamento?.origem_receita ?? inicial?.origem_receita ?? 'salario',
     descricao: lancamento?.descricao ?? inicial?.descricao ?? '',
-    valor_cents: lancamento?.valor_cents ?? 0,
+    valor_cents: lancamento?.valor_cents ?? inicial?.valor_cents ?? 0,
     data: lancamento?.data ?? hojeISO(),
     categoria_id: lancamento?.categoria_id ?? null,
     escopo: lancamento?.escopo ?? 'individual',

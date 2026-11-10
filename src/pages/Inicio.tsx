@@ -10,7 +10,7 @@ import {
   PiggyBank,
   Plus,
   Receipt,
-  TrendingDown,
+  Church,
   TrendingUp,
   Wallet,
 } from 'lucide-react'
@@ -21,7 +21,8 @@ import { Card } from '@/components/ui/Card'
 import { Carregando } from '@/components/ui/Carregando'
 import { useCartoes } from '@/features/cartoes/api'
 import { useContas, useSaldos } from '@/features/contas/api'
-import { competencia, useContribuicoes, useMovimentos, type Movimento } from '@/features/dashboard/api'
+import { competencia, useMovimentos, useResumoFundo, type Movimento } from '@/features/dashboard/api'
+import { ResumoDespesas } from '@/features/dashboard/ResumoDespesas'
 import { calcularPlanoDoMes } from '@/features/dashboard/calculo'
 import { DespesasPorCategoria } from '@/features/dashboard/DespesasPorCategoria'
 import type { PontoEvolucao } from '@/features/dashboard/GraficoEvolucao'
@@ -40,7 +41,7 @@ export function Inicio() {
   const mes = mesAtualISO()
   const mesInicio = adicionarMeses(mes, -(MESES_HISTORICO - 1))
   const movimentos = useMovimentos(mesInicio, mes)
-  const contribuicoes = useContribuicoes(mes)
+  const resumoFundo = useResumoFundo(mes)
   const { data: categorias = [] } = useCategorias()
   const { data: cartoes = [] } = useCartoes()
   const { data: contas = [] } = useContas()
@@ -48,6 +49,7 @@ export function Inicio() {
   const [verCalculo, setVerCalculo] = useState(false)
 
   const nomeCategoria = useMemo(() => new Map(categorias.map((c) => [c.id, c.nome])), [categorias])
+  const categoriasFixas = useMemo(() => new Set(categorias.filter((c) => c.fixa).map((c) => c.id)), [categorias])
   const categoriasContribuicao = useMemo(
     () => new Set(categorias.filter((c) => c.owner_id === null && ['Dízimo', 'Oferta'].includes(c.nome)).map((c) => c.id)),
     [categorias],
@@ -57,7 +59,7 @@ export function Inicio() {
   const primeiroNome = profile.nome.split(' ')[0]
   const conjugeAusente = household && membros.length < 2
 
-  if (movimentos.isPending || contribuicoes.isPending) {
+  if (movimentos.isPending || resumoFundo.isPending) {
     return (
       <>
         <Cabecalho titulo={`Olá, ${primeiroNome}!`} descricao={`Resumo de ${nomeDoMes(mes).toLowerCase()}`} />
@@ -70,15 +72,13 @@ export function Inicio() {
   const doMes = todos.filter((m) => competencia(m) === mes)
   const plano = calcularPlanoDoMes({
     movimentosDoMes: doMes,
-    contribuicoes: contribuicoes.data ?? [],
+    resumo: resumoFundo.data ?? null,
     profile,
     household,
     userId: user.id,
     categoriasContribuicao,
   })
 
-  const receitasMes = doMes.filter((m) => m.tipo === 'receita').reduce((s, m) => s + m.valor_cents, 0)
-  const despesasMes = doMes.filter((m) => m.tipo === 'despesa').reduce((s, m) => s + m.valor_cents, 0)
   const saldoContas = contas.filter((c) => !c.arquivada).reduce((s, c) => s + (saldos?.get(c.id) ?? 0), 0)
   const usoOrcamento = plano.orcamento > 0 ? Math.min(100, (plano.gasto / plano.orcamento) * 100) : 0
 
@@ -161,12 +161,46 @@ export function Inicio() {
         )}
       </Card>
 
+      {plano.estimado && (
+        <Card className="mb-4 flex flex-wrap items-center justify-between gap-3 border-amber-200 bg-amber-50">
+          <p className="text-sm text-amber-900">
+            Você ainda não lançou nenhuma receita em {nomeDoMes(mes).toLowerCase()}. Os valores abaixo usam a renda do
+            seu cadastro como <strong>previsão</strong>.
+          </p>
+          <Link
+            to="/lancamentos"
+            state={{
+              novo: {
+                tipo: 'receita',
+                origem_receita: 'salario',
+                descricao: 'Salário',
+                valor_cents: profile.renda_mensal_cents,
+              },
+            }}
+            className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+          >
+            Lançar salário do mês
+          </Link>
+        </Card>
+      )}
+
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Indicador icone={TrendingUp} rotulo="Receitas do mês" valor={receitasMes} />
-        <Indicador icone={TrendingDown} rotulo="Despesas do mês" valor={despesasMes} />
+        <Indicador
+          icone={TrendingUp}
+          rotulo={plano.estimado ? 'Renda líquida (prevista)' : 'Renda líquida do mês'}
+          valor={plano.receitas}
+        />
+        <Indicador icone={Church} rotulo="Dízimo e ofertas" valor={plano.contribuicoes} />
+        <Indicador
+          icone={PiggyBank}
+          rotulo={household ? 'Reserva do casal no mês' : 'Reserva do mês'}
+          valor={plano.reserva}
+          detalhe={plano.investimento > 0 ? `+ ${formatarBRL(plano.investimento)} investimento` : undefined}
+        />
         <Indicador icone={Wallet} rotulo="Saldo em contas" valor={saldoContas} link="/contas" />
-        <Indicador icone={PiggyBank} rotulo="Guardar este mês" valor={plano.reserva + plano.investimento} />
       </div>
+
+      <ResumoDespesas movimentos={doMes} categoriasFixas={categoriasFixas} />
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <Card>
@@ -275,17 +309,20 @@ function Indicador({
   rotulo,
   valor,
   link,
+  detalhe,
 }: {
   icone: typeof Wallet
   rotulo: string
   valor: number
   link?: string
+  detalhe?: string
 }) {
   const conteudo = (
     <>
       <Icone className="mb-2 size-5 text-brand-700" aria-hidden />
       <p className="text-xs text-slate-500">{rotulo}</p>
       <p className="text-lg font-semibold tabular-nums text-slate-900">{formatarBRL(valor)}</p>
+      {detalhe && <p className="text-xs text-slate-500">{detalhe}</p>}
     </>
   )
   return link ? (

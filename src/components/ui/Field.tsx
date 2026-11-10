@@ -1,6 +1,6 @@
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
-import { centavosDeTexto, formatarBRL } from '@/lib/money'
+import { centavosDeTexto, formatarBRLSempre } from '@/lib/money'
 
 const inputBase =
   'h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-base text-slate-900 placeholder:text-slate-400 ' +
@@ -107,7 +107,7 @@ export function MoneyInput({ label, valor, onChange, erro, ajuda }: MoneyInputPr
           aria-invalid={Boolean(erro)}
           aria-describedby={descId}
           className={cn(inputBase, 'tabular-nums')}
-          value={formatarBRL(valor)}
+          value={formatarBRLSempre(valor)}
           onChange={(e) => onChange(centavosDeTexto(e.target.value))}
         />
       )}

@@ -106,8 +106,11 @@ export function useAlternarPago() {
     onMutate: async ({ id, pago }) => {
       // Atualização otimista: o checkbox responde na hora.
       await qc.cancelQueries({ queryKey: ['lancamentos'] })
-      qc.setQueriesData<Lancamento[]>({ queryKey: ['lancamentos'] }, (lista) =>
-        lista?.map((l) => (l.id === id ? { ...l, pago } : l)),
+      // Só listas: há consultas sob ['lancamentos'] que são objetos (resumo do fundo, saúde).
+      qc.setQueriesData<unknown>({ queryKey: ['lancamentos'] }, (dados: unknown) =>
+        Array.isArray(dados)
+          ? (dados as Lancamento[]).map((l) => (l.id === id ? { ...l, pago } : l))
+          : dados,
       )
     },
     onSettled: () => invalidarFinanceiro(qc),

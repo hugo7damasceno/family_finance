@@ -9,6 +9,7 @@ import { Aviso, Card } from '@/components/ui/Card'
 import { Carregando } from '@/components/ui/Carregando'
 import { Modal } from '@/components/ui/Modal'
 import { cn } from '@/lib/cn'
+import { mensagemDeErro } from '@/lib/queries'
 import { adicionarMeses, mesAtualISO, nomeDoMes, rotuloDoDia } from '@/lib/datas'
 import { formatarBRL } from '@/lib/money'
 import type { Lancamento } from '@/types/database'
@@ -145,6 +146,11 @@ export function PaginaLancamentos() {
       )}
 
       {error && <Aviso tipo="erro">Não foi possível carregar os lançamentos.</Aviso>}
+      {alternarPago.error && (
+        <Aviso tipo="erro" className="mb-4">
+          Não foi possível marcar como pago: {mensagemDeErro(alternarPago.error)}
+        </Aviso>
+      )}
       {isPending ? (
         <Carregando />
       ) : porDia.length === 0 ? (

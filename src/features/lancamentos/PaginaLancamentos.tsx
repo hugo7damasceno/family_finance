@@ -30,6 +30,7 @@ import { useAlternarPago, useCategorias, useLancamentosDoMes, type DadosLancamen
 import { FormLancamento } from './FormLancamento'
 import { PainelRecorrencias } from '@/features/recorrencias/PainelRecorrencias'
 import { useTerceiros } from '@/features/terceiros/api'
+import { competencia, useMovimentos } from '@/features/dashboard/api'
 
 type Filtro = 'todos' | 'meus' | 'casal'
 
@@ -56,6 +57,9 @@ export function PaginaLancamentos() {
   const { data: categorias = [] } = useCategorias()
   const alternarPago = useAlternarPago()
   const { data: terceiros = [] } = useTerceiros()
+  // "A pagar" segue o vencimento: contas pela data e compras no cartão pela fatura que vence
+  // neste mês (compra de hoje no cartão só é paga na próxima fatura).
+  const { data: doMesPorVencimento } = useMovimentos(mes, mes)
 
   const nomeCategoria = useMemo(() => new Map(categorias.map((c) => [c.id, c.nome])), [categorias])
   const nomeTerceiro = useMemo(() => new Map(terceiros.map((t) => [t.id, t.nome.split(' ')[0]])), [terceiros])
@@ -64,23 +68,30 @@ export function PaginaLancamentos() {
   const visiveis = (lancamentos ?? []).filter((l) =>
     filtro === 'meus' ? l.escopo === 'individual' : filtro === 'casal' ? l.escopo === 'casal' : true,
   )
+  const pendentes = (doMesPorVencimento ?? []).filter(
+    (m) =>
+      m.tipo === 'despesa' &&
+      !m.pago &&
+      competencia(m) === mes &&
+      (filtro === 'meus' ? m.escopo === 'individual' : filtro === 'casal' ? m.escopo === 'casal' : true),
+  )
+  const aPagarContas = pendentes.filter((m) => !m.cartao_id).reduce((s, m) => s + m.valor_cents, 0)
+  const aPagarFaturas = pendentes.filter((m) => m.cartao_id).reduce((s, m) => s + m.valor_cents, 0)
+  const aPagar = aPagarContas + aPagarFaturas
+
   const totais = visiveis.reduce(
     (t, l) => {
       // Compras de terceiros e reembolsos não são renda nem gasto da família.
       if (l.terceiro_id) {
         if (l.tipo === 'despesa') t.terceiros += l.valor_cents
-        if (l.tipo === 'despesa' && !l.pago) t.aPagar += l.valor_cents
         return t
       }
       if (l.tipo === 'receita') t.receitas += l.valor_cents
-      if (l.tipo === 'despesa') {
-        // Transferências entre contas não são receita nem despesa.
-        t.despesas += l.valor_cents
-        if (!l.pago) t.aPagar += l.valor_cents
-      }
+      // Transferências entre contas não são receita nem despesa.
+      if (l.tipo === 'despesa') t.despesas += l.valor_cents
       return t
     },
-    { receitas: 0, despesas: 0, aPagar: 0, terceiros: 0 },
+    { receitas: 0, despesas: 0, terceiros: 0 },
   )
   const grupos = new Map<string, Lancamento[]>()
   for (const l of visiveis) grupos.set(l.data, [...(grupos.get(l.data) ?? []), l])
@@ -142,9 +153,21 @@ export function PaginaLancamentos() {
           cor={totais.receitas - totais.despesas < 0 ? 'text-red-600' : 'text-slate-900'}
         />
       </div>
-      {totais.aPagar > 0 && (
+      {visiveis.some((l) => l.cartao_id) && (
+        <p className="-mt-2 mb-3 text-xs text-slate-500">
+          Totais pela data da compra. No Início, compras no cartão contam no mês em que a fatura vence.
+        </p>
+      )}
+      {aPagar > 0 && (
         <p className="mb-4 text-sm text-slate-600">
-          Ainda a pagar este mês: <strong className="text-slate-900">{formatarBRL(totais.aPagar)}</strong>
+          Ainda a pagar este mês: <strong className="text-slate-900">{formatarBRL(aPagar)}</strong>
+          {aPagarFaturas > 0 && (
+            <span className="text-slate-500">
+              {' '}
+              ({aPagarContas > 0 && <>contas {formatarBRL(aPagarContas)} + </>}faturas com vencimento no mês{' '}
+              {formatarBRL(aPagarFaturas)})
+            </span>
+          )}
         </p>
       )}
       {totais.terceiros > 0 && (

@@ -73,6 +73,17 @@ Visibilidade (aplicada no banco via Row Level Security, coluna `escopo`):
   apenas como um total ("Compras individuais do cônjuge").
 - Limite disponível = limite − tudo que ainda não foi pago no cartão.
 
+### Fatura paga (regra garantida pelo banco de dados)
+
+- Uma compra no cartão está **paga se, e somente se, a fatura dela foi paga**.
+- Compra lançada depois do pagamento numa fatura já paga já nasce paga. Isso vale para data retroativa, recorrência, parcela ou data editada.
+- O valor do pagamento acompanha o total da fatura. Se a fatura paga ganha ou perde compras, o pagamento é ajustado e o saldo da conta usada também.
+- "Ainda a pagar" (Lançamentos e Início) segue o vencimento:
+  - contas pela data;
+  - compras no cartão pela fatura que vence no mês.
+  - Uma compra feita hoje no cartão só entra no "a pagar" do mês da próxima fatura.
+- Os totais da tela de Lançamentos seguem a data da compra (a lista é por dia). No Início, compras no cartão contam no mês da fatura.
+
 ## Parcelamentos
 
 - Uma única entidade (`parcelamentos`) atende compras no cartão, compras de terceiros e empréstimos.

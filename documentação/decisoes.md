@@ -123,6 +123,24 @@ Visibilidade (aplicada no banco via Row Level Security, coluna `escopo`):
 - Se ainda não há receita lançada, o painel mostra a renda do cadastro como **prevista** e oferece "Lançar salário do mês".
 - **Despesas fixas** = recorrentes + parcelas + categorias marcadas como fixas (moradia, contas, assinaturas). O resto é variável.
 
+## Saúde financeira
+
+Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os totais do casal, sem expor valores de cada um.
+
+| Indicador | Saudável | Atenção | Crítico | Peso |
+|---|---|---|---|---|
+| Taxa de poupança: (renda − despesas) ÷ renda | ≥ 20% | 10–20% | < 10% | 25 |
+| Reserva de emergência (cofrinhos tipo reserva) ÷ custo de vida mensal | ≥ 6 meses | 3–6 | < 3 | 25 |
+| Parcelas do mês ÷ renda | ≤ 10% | até 30% | > 30% | 20 |
+| Despesas fixas ÷ renda (regra 50/30/20) | ≤ 50% | até 70% | > 70% | 15 |
+| Contas em atraso | nenhuma | 1 | 3 ou mais | 15 |
+
+- Renda = receitas − dízimo/oferta. Dízimo e ofertas não contam como despesa.
+- Base: média dos últimos 3 meses fechados com receita; sem histórico, usa o mês atual.
+- Sem receitas e despesas lançadas, mostra "Sem dados suficientes" (não dá nota).
+- Faixas: 80+ Saudável · 60–79 Estável · 40–59 Atenção · abaixo de 40 Crítica.
+- Cada indicador fora do ideal traz uma dica de como melhorar.
+
 ## Ocultar valores
 
 - O ícone do olho (no topo de cada tela) troca todos os valores por "R$ •••••". A preferência fica salva no aparelho.

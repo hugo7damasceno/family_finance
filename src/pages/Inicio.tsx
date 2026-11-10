@@ -24,6 +24,7 @@ import { ehCofrinho, useContas, useSaldos } from '@/features/contas/api'
 import { competencia, useMovimentos, useResumoFundo, type Movimento } from '@/features/dashboard/api'
 import { ResumoCofrinhos } from '@/features/dashboard/ResumoCofrinhos'
 import { ResumoDespesas } from '@/features/dashboard/ResumoDespesas'
+import { CartaoSaude } from '@/features/saude/CartaoSaude'
 import { calcularPlanoDoMes } from '@/features/dashboard/calculo'
 import { DespesasPorCategoria } from '@/features/dashboard/DespesasPorCategoria'
 import type { PontoEvolucao } from '@/features/dashboard/GraficoEvolucao'
@@ -203,7 +204,10 @@ export function Inicio() {
 
       <ResumoDespesas movimentos={doMes} categoriasFixas={categoriasFixas} />
 
-      <ResumoCofrinhos contas={contas} saldos={saldos} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <CartaoSaude mes={mes} />
+        <ResumoCofrinhos contas={contas} saldos={saldos} />
+      </div>
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <Card>

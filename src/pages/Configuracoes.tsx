@@ -107,7 +107,7 @@ function RegrasDoCasal({ household }: { household: Household }) {
         ]}
       />
       {mensagem && <Aviso tipo={mensagem.tipo}>{mensagem.texto}</Aviso>}
-      <Button onClick={salvar} disabled={!alterado} carregando={salvando}>
+      <Button onClick={salvar} disabled={!alterado} motivo="Nenhuma alteração para salvar." carregando={salvando}>
         Salvar regras
       </Button>
       <p className="text-xs text-slate-500">As alterações valem para os dois membros da conta conjunta.</p>

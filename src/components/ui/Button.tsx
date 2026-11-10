@@ -14,10 +14,12 @@ const estilos: Record<Variante, string> = {
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variante?: Variante
   carregando?: boolean
+  /** Por que o botão está desabilitado: aparece ao passar o cursor. */
+  motivo?: string
 }
 
-export function Button({ variante = 'primario', carregando, disabled, className, children, ...rest }: Props) {
-  return (
+export function Button({ variante = 'primario', carregando, disabled, motivo, className, children, ...rest }: Props) {
+  const botao = (
     <button
       {...rest}
       disabled={disabled || carregando}
@@ -31,5 +33,18 @@ export function Button({ variante = 'primario', carregando, disabled, className,
       {carregando && <Loader2 className="size-4 animate-spin" aria-hidden />}
       {children}
     </button>
+  )
+  // Botão desabilitado não recebe o cursor em todos os navegadores: a dica fica num invólucro.
+  if (!motivo || !disabled) return botao
+  return (
+    <span
+      title={motivo}
+      className={cn(
+        'inline-flex cursor-not-allowed [&>button]:pointer-events-none',
+        className?.includes('flex-1') && 'flex-1',
+      )}
+    >
+      {botao}
+    </span>
   )
 }

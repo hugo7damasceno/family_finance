@@ -1,6 +1,19 @@
 import { useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, CreditCard, Home, Repeat, Landmark, Plus, Sparkles, User, Users } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  Lock,
+  Home,
+  Repeat,
+  Landmark,
+  Plus,
+  Sparkles,
+  User,
+  Users,
+} from 'lucide-react'
 import { useAuth } from '@/auth/auth-context'
 import { Cabecalho } from '@/components/layout/AuthLayout'
 import { BotaoEmDesenvolvimento } from '@/components/EmDesenvolvimento'
@@ -19,7 +32,12 @@ import { PainelRecorrencias } from '@/features/recorrencias/PainelRecorrencias'
 import { useTerceiros } from '@/features/terceiros/api'
 
 type Filtro = 'todos' | 'meus' | 'casal'
-type EstadoModal = { lancamento?: Lancamento; inicial?: Partial<DadosLancamento> } | null
+
+const MOTIVO_CARTAO = 'Compra no cartão: fica paga quando você paga a fatura, na tela de Cartões.'
+type EstadoModal = {
+  lancamento?: Lancamento
+  inicial?: Partial<DadosLancamento>
+} | null
 
 export function PaginaLancamentos() {
   const { user, household, membros } = useAuth()
@@ -33,6 +51,7 @@ export function PaginaLancamentos() {
     return inicial ? { inicial } : null
   })
   const [recorrentesAberto, setRecorrentesAberto] = useState(false)
+  const [motivoAberto, setMotivoAberto] = useState<string | null>(null)
   const { data: lancamentos, isPending, error } = useLancamentosDoMes(mes)
   const { data: categorias = [] } = useCategorias()
   const alternarPago = useAlternarPago()
@@ -182,54 +201,94 @@ export function PaginaLancamentos() {
               </h2>
               <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white">
                 {itens.map((l) => (
-                  <li key={l.id} className="flex items-center gap-3 px-4 py-3">
-                    <input
-                      type="checkbox"
-                      className="size-5 shrink-0 accent-brand-700"
-                      checked={l.pago}
-                      disabled={Boolean(l.cartao_id)}
-                      title={l.cartao_id ? 'Pago junto com a fatura do cartão' : undefined}
-                      onChange={(e) => alternarPago.mutate({ id: l.id, pago: e.target.checked })}
-                      aria-label={l.tipo === 'receita' ? 'Recebido' : 'Pago'}
-                    />
-                    <button
-                      onClick={() => setModal({ lancamento: l })}
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                    >
-                      <span className="min-w-0 flex-1">
-                        <span className={cn('block truncate text-sm font-medium', l.pago ? 'text-slate-900' : 'text-slate-500')}>
-                          {l.descricao}
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                          {l.escopo === 'casal' ? (
-                            <Home className="size-3" aria-label="Da casa" />
+                  <li key={l.id} className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {l.cartao_id ? (
+                        // Compra no cartão: não dá para marcar aqui. Um botão (e não um checkbox
+                        // desabilitado) permite mostrar o motivo no cursor e no toque.
+                        <button
+                          type="button"
+                          onClick={() => setMotivoAberto((id) => (id === l.id ? null : l.id))}
+                          title={MOTIVO_CARTAO}
+                          aria-label={`${l.pago ? 'Pago' : 'Não pago'}. ${MOTIVO_CARTAO}`}
+                          aria-expanded={motivoAberto === l.id}
+                          className={cn(
+                            'flex size-5 shrink-0 cursor-help items-center justify-center rounded border',
+                            l.pago ? 'border-slate-400 bg-slate-400 text-white' : 'border-slate-300 bg-slate-100',
+                          )}
+                        >
+                          {l.pago ? (
+                            <Check className="size-3.5" aria-hidden />
                           ) : (
-                            household && <User className="size-3" aria-label="Individual" />
+                            <Lock className="size-3 text-slate-400" aria-hidden />
                           )}
-                          {l.cartao_id && <CreditCard className="size-3" aria-label="Cartão de crédito" />}
-                          {l.categoria_id && nomeCategoria.get(l.categoria_id)}
-                          {l.terceiro_id && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 text-slate-600">
-                              <Users className="size-3" aria-hidden />
-                              {l.tipo === 'receita' ? 'reembolso de ' : ''}
-                              {nomeTerceiro.get(l.terceiro_id) ?? 'terceiro'}
-                            </span>
-                          )}
-                          {l.gerado_de_id && <Sparkles className="size-3 text-brand-600" aria-label="Automático" />}
-                          {l.recorrencia_id && <Repeat className="size-3" aria-label="Recorrente" />}
-                          {l.owner_id !== user?.id && <> · por {nomeMembro.get(l.owner_id) ?? 'cônjuge'}</>}
-                        </span>
-                      </span>
-                      <span
-                        className={cn(
-                          'shrink-0 text-sm font-semibold tabular-nums',
-                          l.tipo === 'receita' ? 'text-emerald-700' : 'text-slate-900',
-                        )}
+                        </button>
+                      ) : (
+                        <input
+                          type="checkbox"
+                          className="size-5 shrink-0 accent-brand-700"
+                          checked={l.pago}
+                          onChange={(e) =>
+                            alternarPago.mutate({
+                              id: l.id,
+                              pago: e.target.checked,
+                            })
+                          }
+                          aria-label={l.tipo === 'receita' ? 'Recebido' : 'Pago'}
+                        />
+                      )}
+                      <button
+                        onClick={() => setModal({ lancamento: l })}
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
                       >
-                        {l.tipo === 'receita' ? '+ ' : l.tipo === 'despesa' ? '− ' : '⇄ '}
-                        {formatarBRL(l.valor_cents)}
-                      </span>
-                    </button>
+                        <span className="min-w-0 flex-1">
+                          <span
+                            className={cn(
+                              'block truncate text-sm font-medium',
+                              l.pago ? 'text-slate-900' : 'text-slate-500',
+                            )}
+                          >
+                            {l.descricao}
+                          </span>
+                          <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                            {l.escopo === 'casal' ? (
+                              <Home className="size-3" aria-label="Da casa" />
+                            ) : (
+                              household && <User className="size-3" aria-label="Individual" />
+                            )}
+                            {l.cartao_id && <CreditCard className="size-3" aria-label="Cartão de crédito" />}
+                            {l.categoria_id && nomeCategoria.get(l.categoria_id)}
+                            {l.terceiro_id && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 text-slate-600">
+                                <Users className="size-3" aria-hidden />
+                                {l.tipo === 'receita' ? 'reembolso de ' : ''}
+                                {nomeTerceiro.get(l.terceiro_id) ?? 'terceiro'}
+                              </span>
+                            )}
+                            {l.gerado_de_id && <Sparkles className="size-3 text-brand-600" aria-label="Automático" />}
+                            {l.recorrencia_id && <Repeat className="size-3" aria-label="Recorrente" />}
+                            {l.owner_id !== user?.id && <> · por {nomeMembro.get(l.owner_id) ?? 'cônjuge'}</>}
+                          </span>
+                        </span>
+                        <span
+                          className={cn(
+                            'shrink-0 text-sm font-semibold tabular-nums',
+                            l.tipo === 'receita' ? 'text-emerald-700' : 'text-slate-900',
+                          )}
+                        >
+                          {l.tipo === 'receita' ? '+ ' : l.tipo === 'despesa' ? '− ' : '⇄ '}
+                          {formatarBRL(l.valor_cents)}
+                        </span>
+                      </button>
+                    </div>
+                    {motivoAberto === l.id && (
+                      <p className="mt-2 ml-8 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        {MOTIVO_CARTAO}{' '}
+                        <Link to="/cartoes" className="font-semibold text-brand-700 hover:underline">
+                          Ir para Cartões
+                        </Link>
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>

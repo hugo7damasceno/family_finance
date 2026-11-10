@@ -326,7 +326,7 @@ function CartaoCofrinho({
       )}
 
       <div className="grid grid-cols-2 gap-2">
-        <Button variante="secundario" className="h-10" onClick={onRetirar} disabled={saldo <= 0}>
+        <Button variante="secundario" className="h-10" onClick={onRetirar} disabled={saldo <= 0} motivo="O cofrinho está sem saldo para retirar.">
           <ArrowUpFromLine className="size-4" aria-hidden /> Retirar
         </Button>
         <Button className="h-10" onClick={onGuardar}>

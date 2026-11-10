@@ -55,6 +55,8 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
 
   const gerado = Boolean(lancamento?.gerado_de_id)
   const parcela = Boolean(lancamento?.parcelamento_id)
+  // Motivos de bloqueio exibidos nos campos (cursor e texto abaixo do campo).
+  const BLOQUEIO_GERADO = 'Calculado a partir da receita de origem. Edite a receita para mudar.'
   const deOutroMembro = Boolean(lancamento && lancamento.owner_id !== user?.id)
 
   const [d, setD] = useState<DadosLancamento>(() => ({
@@ -253,7 +255,8 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
       <MoneyInput
         label={d.tipo === 'receita' ? 'Valor líquido recebido' : parcelado ? 'Valor total da compra' : 'Valor'}
         valor={d.valor_cents}
-        onChange={(v) => !gerado && set('valor_cents', v)}
+        onChange={(v) => set('valor_cents', v)}
+        bloqueio={gerado ? BLOQUEIO_GERADO : undefined}
         ajuda={parcelado ? `${numParcelas}x de ${formatarBRL(Math.floor(d.valor_cents / numParcelas))}` : undefined}
       />
 
@@ -273,7 +276,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         <Select
           label={deTerceiro ? 'Categoria (opcional)' : 'Categoria'}
           value={d.categoria_id ?? ''}
-          disabled={gerado}
+          bloqueio={gerado ? BLOQUEIO_GERADO : undefined}
           onChange={(e) => set('categoria_id', e.target.value || null)}
         >
           <option value="">Selecione…</option>
@@ -289,7 +292,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         label="Descrição"
         placeholder={d.tipo === 'receita' ? 'Ex.: Salário empresa X' : 'Ex.: Conta de luz'}
         value={d.descricao}
-        disabled={gerado}
+        bloqueio={gerado ? BLOQUEIO_GERADO : undefined}
         onChange={(e) => set('descricao', e.target.value)}
       />
 
@@ -297,14 +300,18 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         label={parcelado ? 'Data da compra (1ª parcela)' : 'Data'}
         type="date"
         value={d.data}
-        disabled={gerado}
+        bloqueio={gerado ? BLOQUEIO_GERADO : undefined}
         onChange={(e) => set('data', e.target.value)}
       />
 
       <Select
         label={d.tipo === 'receita' ? 'Recebido em' : 'Pago com'}
         value={codificarOrigem(d)}
-        disabled={parcela && Boolean(d.cartao_id)}
+        bloqueio={
+          parcela && d.cartao_id
+            ? 'Parcela de compra no cartão: o cartão vale para todas as parcelas. Para trocar, exclua o parcelamento e lance de novo.'
+            : undefined
+        }
         onChange={(e) => escolherOrigem(e.target.value)}
         ajuda={
           contas.length === 0 && cartoes.length === 0
@@ -339,7 +346,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         <Select
           label="Compra de terceiro?"
           value={d.terceiro_id ?? ''}
-          disabled={parcela}
+          bloqueio={parcela ? 'A pessoa vale para todas as parcelas. Para trocar, exclua o parcelamento e lance de novo.' : undefined}
           onChange={(e) => set('terceiro_id', e.target.value || null)}
           ajuda={
             deTerceiro

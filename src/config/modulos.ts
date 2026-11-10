@@ -1,5 +1,6 @@
 import {
   ArrowLeftRight,
+  BarChart3,
   CalendarHeart,
   CreditCard,
   Gem,
@@ -57,6 +58,13 @@ export const modulos: Modulo[] = [
     titulo: 'Parcelamentos',
     descricao: 'Compras parceladas e percentual da renda comprometida',
     icone: Layers,
+    fase: 1,
+  },
+  {
+    rota: '/comparativos',
+    titulo: 'Comparativos',
+    descricao: 'Despesas mês a mês e ano a ano, por categoria',
+    icone: BarChart3,
     fase: 1,
   },
   {

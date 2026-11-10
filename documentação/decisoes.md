@@ -141,6 +141,23 @@ Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os to
 - Faixas: 80+ Saudável · 60–79 Estável · 40–59 Atenção · abaixo de 40 Crítica.
 - Cada indicador fora do ideal traz uma dica de como melhorar.
 
+## Comparativos de despesas
+
+- Tela **Comparativos**, com duas visões:
+  - **Mensal**: compara o mês com o anterior e com o mesmo mês do ano passado. Mostra um gráfico dos últimos 12 meses com a média dos 11 anteriores.
+  - **Anual**: compara o ano com o anterior, mês a mês.
+- Os comparativos usam apenas despesas, por competência: a compra no cartão conta no mês da fatura. Transferências não entram.
+- Dízimo e ofertas ficam fora por padrão, porque variam com a renda e distorcem a comparação. Há uma opção para incluí-los.
+- No ano em andamento, compara só o mesmo período: jan–nov de um ano contra jan–nov do outro. Sem isso, o ano anterior completo sempre pareceria maior.
+- A tabela por categoria mostra a variação:
+  - aumento de despesa aparece com seta vermelha;
+  - redução aparece com seta verde;
+  - a variação sempre vem com o ícone e o percentual, nunca só pela cor;
+  - categoria sem gasto no período anterior aparece como "novo".
+- Mostra os 3 maiores aumentos em reais, que são o que mais explica a diferença do total.
+- Na conta conjunta, considera o que o usuário vê, com filtro Tudo / Meus / Da casa. Os gastos individuais do cônjuge não aparecem.
+- No gráfico anual, o ano anterior aparece em cinza neutro (`#64748b`), como referência e não como uma nova série.
+
 ## Ocultar valores
 
 - O ícone do olho (no topo de cada tela) troca todos os valores por "R$ •••••". A preferência fica salva no aparelho.
@@ -155,7 +172,7 @@ Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os to
 
 ## Roadmap
 
-- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes e dashboard ✅
+- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes, dashboard, cofrinhos, saúde financeira e comparativos ✅
 - **Fase 2:** lista de compras (offline e sincronizada), terceiros, rendas extras, orçamento por categoria, importação OFX, sonhos.
 - **Fase 3:** investimentos, projetos e empréstimos (amortização), datas comemorativas, patrimônio, relatórios e exclusão de conta com relatório.
 - **Fase 4:** integrações (Open Finance, nota fiscal, B3).

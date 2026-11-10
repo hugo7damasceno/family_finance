@@ -1,0 +1,4 @@
+# Normaliza quebras de linha (LF) independentemente do sistema operacional
+* text=auto eol=lf
+*.png binary
+*.ico binary

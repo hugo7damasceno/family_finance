@@ -1,0 +1,30 @@
+Vamos construir um Progressive Web App (PWA) [Progressive Web App]  funcione na web e no celular simultaneamente, e que possa ser instalada diretamente pelo navegador (sem depender das lojas de aplicativos como Google Play ou Apple App Store)
+
+Tecnologias a serem utilizadas, me ajude a decidir as que mais se adequam ao projeto.
+
+Funções do sistema:
+* Login
+* Recuperação de senha
+* Criar conta
+* Criar conta conjunta: para marido e esposa, cada qual com seu login, cada um vê sua parte individual financeira(salario, investimentos, compras) e vê a vida financeira do casal (despesas da casa, reserva de emergência, crescimento patrimonial).
+* questionário no cadastro(Renda mensal? É dizimista?(se sim, já separar os 10% pode embasar com um verso biblico), é ofertante? (campo pra digitar a porcentage), Investe?Quanto?, Percentual da reserva de emergência)
+* openbank: para já puxar dos bancos os extratos de compras de cartão, pix, valores recebidos e etc.(Não será desenvolvido agora, mas pode ter um botão inabilitado, pra dizer que ainda está em desenvolvimento mas já se pensa nessa possibilidade)
+* Lista de compras(mercado): as compras feitas mensal/semanal, criar uma lista de itens, colocar as quantidades, e um checkbox pra quando estiver comprando marcar como comprado
+* ler os itens a partir das notas fiscais contabilizando junto a lista de compras, preço, itens e quantitativos (essa funcionalidade pode não ser simples então segue a msm forma do openbank cria apenas um botão desabilitado)
+* função para acompanhamento dos investimentos, cadastrar os ativos, compras dos ativos, vendas e proventos/rendimentos por mês(criar funcionalidade de vincular a B3 mas por enquanto apenas o botão inbilitado) diversificação da carteira
+* função de planejamento de sonhos (comprar um mével, trocar de carro, viagem), deixar o registro do que já foi conqusitado.
+* função de datas comemorativas, aniversário de casamento, dia dos namorados (isso para contas conjuntas)
+* funcionalidade de cadastro e acompanhamento de compras parceladas (quais compras parceladas, em quantas vezes, quantas parcelas ja pagas, quantas parcelas restam, percentual da renda comprometida)
+* dashboards das despesas, entradas, valores guardados, contas já pagas, crescimento financeiro(redução das despesas, aumento de entradas por exemplo recebemos aumento salarial, aumento dos valores de dinheiro guardado)
+* contas por cartões de crédito(cadastrar um cartão ex. Cartão Inter Hugo), compras feitas por terceiros ou seja alguem comprou no nosso cartão e precisa nos reçacer, cadastrar a pessoa e a compra e as parcelas
+* separação dos gastos por categorias, despesas fixaas, lanches, gasolina, mecanica, etc
+* o quanto se pode gastar no mês
+* botão para cadastro do decimo terceiro, férias, restituição e outros.
+* função para cadastro de projetos, por exemplo reforma da casa, nessa parte será cadastrado tudo que foi gasto nesse projeto, projeto da compra do carro, foi um emprestimo, ja cadastra as parceclas e periodo e a opção de abater e mostrar o que foi ganho com os abatimentos.
+um sistema que auxilie no controle das finanças, tanto individuais quanto familiar. para alem das funcionalidades aqui colocadas acredito que ja existam sistemas robustos e completos no mercado, caso algo importante faltou nas funcionalidades complete com as funções de outros sistemas e dicas de profissionais da area de finanças
+
+
+* cofrinhos/caixinhas (tanto para casal quanto individual)(guardar, retirar, transferir para outra caixinha)
+* números do que foi gasto em cada categoria
+* mostrar o que já foi pago e o que falta pagar
+* notificar quem ainda está devendo o cartão (terceiros)

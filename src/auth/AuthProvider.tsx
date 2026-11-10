@@ -12,11 +12,7 @@ interface DadosPerfil {
 }
 
 async function buscarPerfil(userId: string): Promise<DadosPerfil> {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle<Profile>()
+  const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle<Profile>()
   if (error) throw error
   if (!profile?.household_id) return { profile, household: null, membros: [] }
 
@@ -59,7 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const sair = useCallback(async () => {
     await supabase.auth.signOut()
-  }, [])
+    // Cópias locais (listas de compras offline) não devem ficar para o próximo usuário do aparelho.
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('ff:compras:'))
+        .forEach((k) => localStorage.removeItem(k))
+    } catch {
+      // armazenamento indisponível
+    }
+    queryClient.clear()
+  }, [queryClient])
 
   const valor = useMemo<AuthState>(
     () => ({

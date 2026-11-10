@@ -72,7 +72,7 @@ export const modulos: Modulo[] = [
     titulo: 'Lista de compras',
     descricao: 'Lista do mercado com checklist durante a compra',
     icone: ShoppingCart,
-    fase: 2,
+    fase: 1,
     atalhoMobile: true,
   },
   {

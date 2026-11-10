@@ -22,6 +22,8 @@ const telas: Record<string, RouteObject['lazy']> = {
   '/parcelamentos': async () => ({
     Component: (await import('@/features/parcelamentos/PaginaParcelamentos')).PaginaParcelamentos,
   }),
+  '/compras': async () => ({ Component: (await import('@/features/compras/PaginaCompras')).PaginaCompras }),
+  '/compras/:id': async () => ({ Component: (await import('@/features/compras/PaginaCompras')).PaginaCompras }),
   '/terceiros': async () => ({ Component: (await import('@/features/terceiros/PaginaTerceiros')).PaginaTerceiros }),
   '/comparativos': async () => ({
     Component: (await import('@/features/comparativos/PaginaComparativos')).PaginaComparativos,

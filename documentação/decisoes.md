@@ -141,6 +141,31 @@ Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os to
 - Faixas: 80+ Saudável · 60–79 Estável · 40–59 Atenção · abaixo de 40 Crítica.
 - Cada indicador fora do ideal traz uma dica de como melhorar.
 
+## Lista de compras
+
+- Várias listas (mercado do mês, feira, farmácia), do casal ou individuais. São **recorrentes**: ao finalizar a compra, os itens são desmarcados para a próxima vez. A opção "Remover comprados" serve para listas de uma vez só.
+- **Adição rápida:**
+  - Digite "2 kg arroz", "6 ovos" ou "1,5kg carne": a quantidade e a unidade são lidas do texto.
+  - O setor do mercado é escolhido automaticamente pelo nome e pode ser trocado.
+  - Item repetido ainda não comprado tem a quantidade somada, em vez de duplicar.
+- **Modo de compra:**
+  - Os itens ficam agrupados por setor, na ordem dos corredores: hortifrúti → padaria → frios → açougue → mercearia → bebidas → congelados → limpeza → higiene → pet.
+  - Os itens marcados vão para "No carrinho".
+  - A tela mostra o progresso e, se houver preço estimado, o total do carrinho.
+- **Preço estimado (opcional)** por unidade de cada item, para prever quanto a compra vai custar.
+- **Finalizar compra:**
+  - Pede o valor pago (sugere a estimativa), a data, a forma de pagamento e a categoria (padrão "Mercado").
+  - Cria a despesa em Lançamentos, ligada à lista.
+  - A lista mostra as últimas compras e a média de gasto.
+- **Casal:** a lista do casal é sincronizada em tempo real (Supabase Realtime): quem está no mercado marca, o outro vê na hora.
+- **Sem internet:**
+  - A lista fica guardada no aparelho e as marcações continuam funcionando.
+  - As alterações ficam em espera e são enviadas quando a conexão volta. Um aviso mostra quantas faltam.
+  - Limitação: alterações feitas sem internet se perdem se o app for fechado antes de reconectar.
+  - Abrir o app já sem internet depende do login salvo no aparelho.
+- As cópias locais são apagadas ao sair da conta.
+- Leitura de nota fiscal (QR Code da NFC-e): botão "Em breve".
+
 ## Terceiros (compras de outras pessoas no nosso cartão)
 
 - Cadastro da pessoa com nome, WhatsApp e escopo: o casal acompanha junto ou só quem cadastrou.
@@ -195,7 +220,7 @@ Nota de 0 a 100 (média ponderada de 5 indicadores). Na conta conjunta usa os to
 
 ## Roadmap
 
-- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes, dashboard, cofrinhos, saúde financeira, comparativos e terceiros ✅
-- **Fase 2:** lista de compras (offline e sincronizada), rendas extras, orçamento por categoria, importação OFX, sonhos.
+- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes, dashboard, cofrinhos, saúde financeira, comparativos, terceiros e lista de compras ✅
+- **Fase 2:** rendas extras, orçamento por categoria, importação OFX, sonhos.
 - **Fase 3:** investimentos, projetos e empréstimos (amortização), datas comemorativas, patrimônio, relatórios e exclusão de conta com relatório.
 - **Fase 4:** integrações (Open Finance, nota fiscal, B3).

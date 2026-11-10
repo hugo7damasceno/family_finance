@@ -86,6 +86,18 @@ Visibilidade (aplicada no banco via Row Level Security, coluna `escopo`):
 - Transferências entre contas não contam como receita nem despesa.
 - Conta arquivada some das listas, mas mantém o histórico.
 
+## Cofrinhos / caixinhas
+
+- **Conta** responde *onde* está o dinheiro; **cofrinho** responde *para que* ele está guardado.
+- Decisão: cofrinho é um **tipo de conta** (`cofrinho`, ou `reserva` para a reserva de emergência), como as caixinhas
+  dos bancos, que movem dinheiro de verdade. Não há cofrinhos "virtuais" dentro da conta corrente.
+- Meta (valor) e data-alvo opcionais, com progresso e sugestão de quanto guardar por mês até a data.
+- **Guardar**, **retirar** e **transferir entre cofrinhos** são transferências: não contam como receita nem despesa.
+- Individual ou do casal, como as contas.
+- Meta atingida pode ser marcada como **conquista** (sai da lista de ativos e vai para "Conquistas").
+- O módulo de **Sonhos** usará os cofrinhos por baixo, para não duplicar funcionalidades.
+- No painel: "Saldo em contas" não inclui cofrinhos; os cofrinhos têm um bloco próprio com o progresso das metas.
+
 ## Lançamentos recorrentes
 
 - Aluguel, contas fixas, assinaturas e salário podem ser cadastrados como **recorrentes** (dia do mês, início e fim opcional).

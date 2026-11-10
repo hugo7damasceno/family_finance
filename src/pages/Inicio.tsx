@@ -20,8 +20,9 @@ import { BotaoEmDesenvolvimento } from '@/components/EmDesenvolvimento'
 import { Card } from '@/components/ui/Card'
 import { Carregando } from '@/components/ui/Carregando'
 import { useCartoes } from '@/features/cartoes/api'
-import { useContas, useSaldos } from '@/features/contas/api'
+import { ehCofrinho, useContas, useSaldos } from '@/features/contas/api'
 import { competencia, useMovimentos, useResumoFundo, type Movimento } from '@/features/dashboard/api'
+import { ResumoCofrinhos } from '@/features/dashboard/ResumoCofrinhos'
 import { ResumoDespesas } from '@/features/dashboard/ResumoDespesas'
 import { calcularPlanoDoMes } from '@/features/dashboard/calculo'
 import { DespesasPorCategoria } from '@/features/dashboard/DespesasPorCategoria'
@@ -79,7 +80,7 @@ export function Inicio() {
     categoriasContribuicao,
   })
 
-  const saldoContas = contas.filter((c) => !c.arquivada).reduce((s, c) => s + (saldos?.get(c.id) ?? 0), 0)
+  const saldoContas = contas.filter((c) => !c.arquivada && !ehCofrinho(c)).reduce((s, c) => s + (saldos?.get(c.id) ?? 0), 0)
   const usoOrcamento = plano.orcamento > 0 ? Math.min(100, (plano.gasto / plano.orcamento) * 100) : 0
 
   const porCategoria = new Map<string, number>()
@@ -201,6 +202,8 @@ export function Inicio() {
       </div>
 
       <ResumoDespesas movimentos={doMes} categoriasFixas={categoriasFixas} />
+
+      <ResumoCofrinhos contas={contas} saldos={saldos} />
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <Card>

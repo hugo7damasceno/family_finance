@@ -39,8 +39,8 @@ export const modulos: Modulo[] = [
   },
   {
     rota: '/contas',
-    titulo: 'Contas',
-    descricao: 'Contas bancárias, poupança, reserva e saldos',
+    titulo: 'Contas e cofrinhos',
+    descricao: 'Contas bancárias, cofrinhos com metas e reserva de emergência',
     icone: Wallet,
     fase: 1,
   },

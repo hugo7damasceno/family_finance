@@ -7,10 +7,19 @@ import type { Conta, Escopo, TipoConta } from '@/types/database'
 export const TIPOS_CONTA: { valor: TipoConta; rotulo: string }[] = [
   { valor: 'corrente', rotulo: 'Conta corrente' },
   { valor: 'poupanca', rotulo: 'Poupança' },
-  { valor: 'reserva', rotulo: 'Reserva de emergência' },
   { valor: 'dinheiro', rotulo: 'Dinheiro em espécie' },
   { valor: 'outro', rotulo: 'Outra' },
 ]
+
+/** Tipos de cofrinho: a reserva de emergência é um cofrinho especial. */
+export const TIPOS_COFRINHO: { valor: TipoConta; rotulo: string }[] = [
+  { valor: 'cofrinho', rotulo: 'Cofrinho / caixinha' },
+  { valor: 'reserva', rotulo: 'Reserva de emergência' },
+]
+
+export const ehCofrinho = (c: Pick<Conta, 'tipo'>) => c.tipo === 'cofrinho' || c.tipo === 'reserva'
+
+export const ICONES_COFRINHO = ['🐷', '🛡️', '✈️', '🏖️', '🚗', '🏠', '🛋️', '🎓', '💍', '👶', '🎁', '💻', '🩺', '📄']
 
 export function useContas() {
   return useQuery({
@@ -46,6 +55,10 @@ export interface DadosConta {
   escopo: Escopo
   saldo_inicial_cents: number
   arquivada: boolean
+  meta_cents?: number | null
+  data_meta?: string | null
+  icone?: string | null
+  concluido_em?: string | null
 }
 
 export function useSalvarConta() {

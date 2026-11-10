@@ -81,7 +81,7 @@ export interface Recorrencia {
   created_at: string
 }
 
-export type TipoConta = 'corrente' | 'poupanca' | 'dinheiro' | 'reserva' | 'outro'
+export type TipoConta = 'corrente' | 'poupanca' | 'dinheiro' | 'reserva' | 'cofrinho' | 'outro'
 
 export interface Conta {
   id: string
@@ -92,6 +92,14 @@ export interface Conta {
   tipo: TipoConta
   saldo_inicial_cents: number
   arquivada: boolean
+  /** Cofrinho: valor-alvo */
+  meta_cents: number | null
+  /** Cofrinho: data-alvo (AAAA-MM-DD) */
+  data_meta: string | null
+  /** Cofrinho: emoji */
+  icone: string | null
+  /** Cofrinho: meta conquistada em */
+  concluido_em: string | null
   created_at: string
 }
 

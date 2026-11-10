@@ -86,6 +86,27 @@ Visibilidade (aplicada no banco via Row Level Security, coluna `escopo`):
 - Transferências entre contas não contam como receita nem despesa.
 - Conta arquivada some das listas, mas mantém o histórico.
 
+## Lançamentos recorrentes
+
+- Aluguel, contas fixas, assinaturas e salário podem ser cadastrados como **recorrentes** (dia do mês, início e fim opcional).
+- Ao abrir o app, os lançamentos do mês são criados automaticamente como **pendentes**. Valores que variam (ex.: luz)
+  são ajustados no lançamento do próprio mês.
+- Cada mês é gerado uma única vez: excluir o lançamento de um mês não faz ele voltar.
+- Em meses mais curtos, o dia 29/30/31 vira o último dia do mês.
+
+## Dashboard: "Disponível para gastar"
+
+- As despesas contam no mês de **competência**: compra no cartão pesa no mês da fatura; o resto, no mês da data.
+- Se ainda não há receita lançada no mês, usa a renda do questionário (marcado como **estimativa**).
+- **Individual:** (receitas − dízimo/oferta) − reserva − investimento − despesas do mês.
+- **Conta conjunta:**
+  1. Fundo comum = receitas de ambos − dízimo/oferta de cada um.
+  2. Do fundo saem as despesas da casa e a reserva (percentual definido pelo casal em Configurações).
+  3. A sobra é dividida **em partes iguais** (padrão) ou **proporcional à renda** (configurável).
+  4. Da minha parte saem meu investimento e minhas despesas individuais.
+- O fundo comum mostra só o total; a renda de cada cônjuge não aparece separadamente.
+- Cores dos gráficos: receitas sempre azul (`#2a78d6`), despesas sempre laranja (`#eb6834`). A paleta foi validada para daltonismo e contraste.
+
 ## Integrações futuras (botão desabilitado com selo "Em breve")
 
 - Open Finance (extratos bancários): via agregador (Pluggy/Belvo).
@@ -94,7 +115,7 @@ Visibilidade (aplicada no banco via Row Level Security, coluna `escopo`):
 
 ## Roadmap
 
-- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos ✅ · dashboard e lançamentos recorrentes ← *próximo*
+- **Fase 1:** autenticação, questionário, conta conjunta, contas, categorias, lançamentos, cartões, parcelamentos, recorrentes e dashboard ✅
 - **Fase 2:** lista de compras (offline e sincronizada), terceiros, rendas extras, orçamento por categoria, importação OFX, sonhos.
 - **Fase 3:** investimentos, projetos e empréstimos (amortização), datas comemorativas, patrimônio, relatórios e exclusão de conta com relatório.
 - **Fase 4:** integrações (Open Finance, nota fiscal, B3).

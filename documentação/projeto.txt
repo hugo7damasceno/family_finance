@@ -28,3 +28,7 @@ um sistema que auxilie no controle das finanças, tanto individuais quanto famil
 * números do que foi gasto em cada categoria
 * mostrar o que já foi pago e o que falta pagar
 * notificar quem ainda está devendo o cartão (terceiros)
+* colocar o icone do olho pra ocultar ou não os valores
+* mostrar no painel inicio alem da renda liquida, dizimo e oferta reserva do mês, mostrar a saude financeira do casal, mostrar os cofinhos/caixinhas, mostrar valor ja pago no mês e o valor que falta pagar, contas fixas do mês e conta não fixas.
+* comparativo mensal e anual das despesas
+* 

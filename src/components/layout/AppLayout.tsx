@@ -1,13 +1,27 @@
+import { useEffect } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { LogOut, Menu } from 'lucide-react'
 import { useAuth } from '@/auth/auth-context'
 import { modulos } from '@/config/modulos'
+import { gerarRecorrencias } from '@/features/recorrencias/api'
+import { invalidarFinanceiro } from '@/lib/queries'
 import { cn } from '@/lib/cn'
 
 export function AppLayout() {
   const { profile, household, sair } = useAuth()
   const visiveis = modulos.filter((m) => !m.somenteCasal || household)
   const atalhos = visiveis.filter((m) => m.atalhoMobile)
+  const qc = useQueryClient()
+
+  // Ao abrir o app, cria os lançamentos recorrentes do mês que ainda não existem.
+  useEffect(() => {
+    gerarRecorrencias()
+      .then((criados) => {
+        if (criados > 0) void invalidarFinanceiro(qc)
+      })
+      .catch((e) => console.warn('Falha ao gerar recorrências', e))
+  }, [qc])
 
   return (
     <div className="min-h-dvh md:flex">

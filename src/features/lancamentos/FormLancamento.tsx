@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Repeat, Trash2 } from 'lucide-react'
 import { useAuth } from '@/auth/auth-context'
 import { Button } from '@/components/ui/Button'
 import { Aviso } from '@/components/ui/Card'
@@ -8,6 +8,7 @@ import { Input, MoneyInput, Select } from '@/components/ui/Field'
 import { mesDaFatura, useCartoes } from '@/features/cartoes/api'
 import { useContasAtivas } from '@/features/contas/api'
 import { useCriarParcelamento } from '@/features/parcelamentos/api'
+import { criarRecorrenciaDoLancamento } from '@/features/recorrencias/api'
 import { cn } from '@/lib/cn'
 import { hojeISO, nomeDoMes } from '@/lib/datas'
 import { formatarBRL, percentual } from '@/lib/money'
@@ -47,6 +48,8 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
   const [erro, setErro] = useState<string | null>(null)
   const [confirmarExclusao, setConfirmarExclusao] = useState(false)
   const [numParcelas, setNumParcelas] = useState(1)
+  const [repetir, setRepetir] = useState(false)
+  const [salvandoRecorrencia, setSalvandoRecorrencia] = useState(false)
 
   const gerado = Boolean(lancamento?.gerado_de_id)
   const parcela = Boolean(lancamento?.parcelamento_id)
@@ -118,12 +121,32 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
           conta_id: dados.conta_id,
           pagas: 0,
         })
+      } else if (repetir && !lancamento) {
+        setSalvandoRecorrencia(true)
+        const recorrenciaId = await criarRecorrenciaDoLancamento(
+          {
+            tipo: dados.tipo,
+            origem_receita: dados.origem_receita,
+            descricao: dados.descricao,
+            valor_cents: dados.valor_cents,
+            categoria_id: dados.categoria_id,
+            conta_id: dados.conta_id,
+            cartao_id: dados.cartao_id,
+            escopo: household ? dados.escopo : 'individual',
+            data: dados.data,
+          },
+          user!.id,
+          profile?.household_id ?? null,
+        )
+        await salvar.mutateAsync({ dados: { ...dados, recorrencia_id: recorrenciaId } })
       } else {
         await salvar.mutateAsync({ id: lancamento?.id, dados })
       }
       onConcluir()
     } catch (err) {
       setErro(traduzirErro(mensagemDeErro(err)))
+    } finally {
+      setSalvandoRecorrencia(false)
     }
   }
 
@@ -177,6 +200,11 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
       {gerado && (
         <Aviso tipo="info">
           Gerado automaticamente a partir de uma receita. Para mudar o valor, edite a receita de origem.
+        </Aviso>
+      )}
+      {lancamento?.recorrencia_id && (
+        <Aviso tipo="info">
+          Lançamento recorrente. As alterações valem só para este mês; para mudar os próximos, use “Recorrentes”.
         </Aviso>
       )}
       {parcela && (
@@ -337,6 +365,19 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
         </Aviso>
       )}
 
+      {!lancamento && !parcelado && (
+        <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+          <input
+            type="checkbox"
+            className="size-5 accent-brand-700"
+            checked={repetir}
+            onChange={(e) => setRepetir(e.target.checked)}
+          />
+          <Repeat className="size-4 text-slate-500" aria-hidden />
+          Repetir todo mês (dia {Number(d.data.slice(8, 10))})
+        </label>
+      )}
+
       {!cartaoSelecionado && !parcelado && (
         <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
           <input
@@ -371,7 +412,7 @@ export function FormLancamento({ lancamento, inicial, onConcluir }: Props) {
             {confirmarExclusao && 'Confirmar'}
           </Button>
         )}
-        <Button type="submit" className="flex-1" carregando={salvar.isPending || criarParcelamento.isPending}>
+        <Button type="submit" className="flex-1" carregando={salvar.isPending || criarParcelamento.isPending || salvandoRecorrencia}>
           {parcelado ? `Criar ${numParcelas} parcelas` : 'Salvar'}
         </Button>
       </div>

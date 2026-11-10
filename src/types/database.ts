@@ -56,7 +56,28 @@ export interface Lancamento {
   terceiro_id: string | null
   pago: boolean
   gerado_de_id: string | null
+  recorrencia_id: string | null
   observacao: string | null
+  created_at: string
+}
+
+export interface Recorrencia {
+  id: string
+  owner_id: string
+  household_id: string | null
+  escopo: Escopo
+  tipo: 'receita' | 'despesa'
+  origem_receita: OrigemReceita | null
+  descricao: string
+  valor_cents: number
+  categoria_id: string | null
+  conta_id: string | null
+  cartao_id: string | null
+  dia_do_mes: number
+  inicio: string
+  fim: string | null
+  gerada_ate: string | null
+  ativa: boolean
   created_at: string
 }
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, CreditCard, Home, Landmark, Plus, Sparkles, User } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CreditCard, Home, Repeat, Landmark, Plus, Sparkles, User } from 'lucide-react'
 import { useAuth } from '@/auth/auth-context'
 import { Cabecalho } from '@/components/layout/AuthLayout'
 import { BotaoEmDesenvolvimento } from '@/components/EmDesenvolvimento'
@@ -14,6 +14,7 @@ import { formatarBRL } from '@/lib/money'
 import type { Lancamento } from '@/types/database'
 import { useAlternarPago, useCategorias, useLancamentosDoMes, type DadosLancamento } from './api'
 import { FormLancamento } from './FormLancamento'
+import { PainelRecorrencias } from '@/features/recorrencias/PainelRecorrencias'
 
 type Filtro = 'todos' | 'meus' | 'casal'
 type EstadoModal = { lancamento?: Lancamento; inicial?: Partial<DadosLancamento> } | null
@@ -29,6 +30,7 @@ export function PaginaLancamentos() {
     const inicial = (location.state as { novo?: Partial<DadosLancamento> } | null)?.novo
     return inicial ? { inicial } : null
   })
+  const [recorrentesAberto, setRecorrentesAberto] = useState(false)
   const { data: lancamentos, isPending, error } = useLancamentosDoMes(mes)
   const { data: categorias = [] } = useCategorias()
   const alternarPago = useAlternarPago()
@@ -65,9 +67,14 @@ export function PaginaLancamentos() {
       <Cabecalho
         titulo="Lançamentos"
         acoes={
-          <Button onClick={() => setModal({})} className="hidden sm:inline-flex">
-            <Plus className="size-4" aria-hidden /> Novo lançamento
-          </Button>
+          <div className="flex gap-2">
+            <Button variante="secundario" onClick={() => setRecorrentesAberto(true)}>
+              <Repeat className="size-4" aria-hidden /> Recorrentes
+            </Button>
+            <Button onClick={() => setModal({})} className="hidden sm:inline-flex">
+              <Plus className="size-4" aria-hidden /> Novo lançamento
+            </Button>
+          </div>
         }
       />
 
@@ -181,6 +188,7 @@ export function PaginaLancamentos() {
                           {l.cartao_id && <CreditCard className="size-3" aria-label="Cartão de crédito" />}
                           {l.categoria_id && nomeCategoria.get(l.categoria_id)}
                           {l.gerado_de_id && <Sparkles className="size-3 text-brand-600" aria-label="Automático" />}
+                          {l.recorrencia_id && <Repeat className="size-3" aria-label="Recorrente" />}
                           {l.owner_id !== user?.id && <> · por {nomeMembro.get(l.owner_id) ?? 'cônjuge'}</>}
                         </span>
                       </span>
@@ -228,6 +236,10 @@ export function PaginaLancamentos() {
             onConcluir={fecharModal}
           />
         )}
+      </Modal>
+
+      <Modal aberto={recorrentesAberto} onFechar={() => setRecorrentesAberto(false)} titulo="Lançamentos recorrentes">
+        {recorrentesAberto && <PainelRecorrencias />}
       </Modal>
     </>
   )

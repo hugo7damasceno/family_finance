@@ -1,7 +1,14 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/auth/auth-context'
 import { Cabecalho } from '@/components/layout/AuthLayout'
-import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Aviso, Card } from '@/components/ui/Card'
+import { Escolha } from '@/components/ui/Escolha'
+import { PercentInput } from '@/components/ui/Field'
+import { mensagemDeErro } from '@/lib/queries'
+import { supabase, traduzirErro } from '@/lib/supabase'
+import type { Household } from '@/types/database'
 import { formatarBRL } from '@/lib/money'
 
 export function Configuracoes() {
@@ -47,9 +54,64 @@ export function Configuracoes() {
           ) : (
             <p className="text-sm text-slate-600">Você está usando uma conta individual.</p>
           )}
+          {household && <RegrasDoCasal key={household.id} household={household} />}
         </Card>
       </div>
     </>
+  )
+}
+
+/** Regras do fundo comum: percentual da reserva e divisão da sobra. */
+function RegrasDoCasal({ household }: { household: Household }) {
+  const { recarregarPerfil } = useAuth()
+  const [reserva, setReserva] = useState(household.percentual_reserva)
+  const [divisao, setDivisao] = useState(household.divisao_sobra)
+  const [salvando, setSalvando] = useState(false)
+  const [mensagem, setMensagem] = useState<{ tipo: 'erro' | 'sucesso'; texto: string } | null>(null)
+  const alterado = reserva !== household.percentual_reserva || divisao !== household.divisao_sobra
+
+  async function salvar() {
+    if (reserva < 0 || reserva > 100) return setMensagem({ tipo: 'erro', texto: 'O percentual deve ficar entre 0 e 100.' })
+    setSalvando(true)
+    setMensagem(null)
+    const { error } = await supabase
+      .from('households')
+      .update({ percentual_reserva: reserva, divisao_sobra: divisao })
+      .eq('id', household.id)
+    setSalvando(false)
+    if (error) return setMensagem({ tipo: 'erro', texto: traduzirErro(mensagemDeErro(error)) })
+    await recarregarPerfil()
+    setMensagem({ tipo: 'sucesso', texto: 'Regras do casal atualizadas.' })
+  }
+
+  return (
+    <div className="mt-5 flex flex-col gap-4 border-t border-slate-100 pt-4">
+      <h3 className="text-sm font-semibold text-slate-900">Regras do fundo comum</h3>
+      <PercentInput
+        label="Reserva de emergência do casal"
+        valor={reserva}
+        onChange={setReserva}
+        ajuda="Percentual do fundo comum (após dízimo e ofertas) separado todo mês."
+      />
+      <Escolha<Household['divisao_sobra']>
+        legenda="Como dividir a sobra entre vocês?"
+        valor={divisao}
+        onChange={setDivisao}
+        opcoes={[
+          { valor: 'igual', titulo: 'Em partes iguais', descricao: 'Cada um fica com metade.' },
+          {
+            valor: 'proporcional_renda',
+            titulo: 'Proporcional à renda',
+            descricao: 'Quem contribui mais para o fundo fica com uma parte maior.',
+          },
+        ]}
+      />
+      {mensagem && <Aviso tipo={mensagem.tipo}>{mensagem.texto}</Aviso>}
+      <Button onClick={salvar} disabled={!alterado} carregando={salvando}>
+        Salvar regras
+      </Button>
+      <p className="text-xs text-slate-500">As alterações valem para os dois membros da conta conjunta.</p>
+    </div>
   )
 }
 
